@@ -1,51 +1,43 @@
 #include <iostream>
+#include <fstream>
+#include <vector>
 #include <string>
 #include <algorithm>
-#include <cctype>
 
-template <typename T>
-class StringManipulator {
-public:
-    static std::string toUpperCase(const T& input) {
-        std::string str = toString(input);
-        std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-        return str;
+void readFile(const std::string& filename, std::vector<std::string>& lines) {
+    std::ifstream file(filename);
+    std::string line;
+    while (std::getline(file, line)) {
+        lines.push_back(line);
     }
+}
 
-    static std::string toLowerCase(const T& input) {
-        std::string str = toString(input);
-        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-        return str;
+void writeFile(const std::string& filename, const std::vector<std::string>& lines) {
+    std::ofstream file(filename);
+    for (const auto& line : lines) {
+        file << line << std::endl;
     }
-
-    static std::string reverse(const T& input) {
-        std::string str = toString(input);
-        std::reverse(str.begin(), str.end());
-        return str;
-    }
-
-    static std::string concatenate(const T& input1, const T& input2) {
-        return toString(input1) + toString(input2);
-    }
-
-private:
-    static std::string toString(const T& input) {
-        if constexpr (std::is_same_v<T, std::string>) {
-            return input;
-        } else {
-            return std::to_string(input);
-        }
-    }
-};
+}
 
 int main() {
-    StringManipulator<std::string> manipulator;
-    std::string str = "Hello, World!";
-    std::cout << "Original: " << str << std::endl;
-    std::cout << "Uppercase: " << manipulator.toUpperCase(str) << std::endl;
-    std::cout << "Lowercase: " << manipulator.toLowerCase(str) << std::endl;
-    std::cout << "Reversed: " << manipulator.reverse(str) << std::endl;
-    std::cout << "Concatenated: " << manipulator.concatenate(str, " C++") << std::endl;
+    std::vector<std::string> surnames, names, patronymics;
+    readFile("Ï.txt", surnames);
+    readFile("².txt", names);
+    readFile("Á.txt", patronymics);
+
+    if (surnames.size() != names.size() || names.size() != patronymics.size()) {
+        std::cerr << "Error: The number of lines in the files do not match." << std::endl;
+        return 1;
+    }
+
+    std::vector<std::string> fullNames;
+    for (size_t i = 0; i < surnames.size(); ++i) {
+        fullNames.push_back(surnames[i] + " " + names[i] + " " + patronymics[i]);
+    }
+
+    std::sort(fullNames.begin(), fullNames.end());
+
+    writeFile("report.txt", fullNames);
 
     return 0;
 }
